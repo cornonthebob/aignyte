@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIgnyte — Let's Talk Modal (demo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap">
+<style>
+  :root{--ink:#1e1e1e;--charcoal:#3a3a3a;--mid:#6b6b6b;--muted:#999;--border:#e8e0d8;--cream:#fdf6ef;--cream2:#f9efe4;--white:#fff;--orange:#ed7d31;--orange-dk:#c96018;--orange-lt:#fef3ea;--dark:#1a1209;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0e8e0;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:40px;}
+  .demo-btn{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:#fff;background:#ed7d31;border:none;border-radius:4px;padding:13px 32px;cursor:pointer;transition:background .15s;}
+  .demo-btn:hover{background:#c96018;}
+  
+  /* ═══════════════════════════════════════
+     AIGNYTE LET'S TALK MODAL — CSS
+     ═══════════════════════════════════════ */
+  .ltm-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(26,18,9,0.65);
+    backdrop-filter: blur(4px);
+    align-items: center; justify-content: center;
+    padding: 20px;
+    animation: ltm-fade-in .2s ease both;
+  }
+  .ltm-overlay.open { display: flex; }
+  @keyframes ltm-fade-in { from{opacity:0} to{opacity:1} }
+
+  .ltm-modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%; max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 0 24px 80px rgba(0,0,0,.2);
+    animation: ltm-pop-in .25s cubic-bezier(.34,1.4,.64,1) both;
+    position: relative;
+  }
+  @keyframes ltm-pop-in {
+    from { opacity:0; transform:scale(.94) translateY(10px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+  }
+
+  .ltm-stripe {
+    height: 4px;
+    background: linear-gradient(90deg, var(--orange,#ed7d31) 0%, #f5a06b 100%);
+    border-radius: 16px 16px 0 0;
+  }
+
+  .ltm-header {
+    padding: 24px 28px 0;
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  }
+  .ltm-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    color: var(--orange,#ed7d31); text-transform: uppercase; letter-spacing: .1em;
+    display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+  }
+  .ltm-dot { width:5px; height:5px; background:var(--orange,#ed7d31); border-radius:50%; }
+  .ltm-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; font-weight: 400; color: var(--ink,#1e1e1e);
+    margin-bottom: 6px; line-height: 1.2;
+  }
+  .ltm-subtitle { font-size: 13px; color: var(--mid,#6b6b6b); line-height: 1.6; }
+  .ltm-close {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1.5px solid var(--border,#e8e0d8);
+    background: none; cursor: pointer; font-size: 16px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted,#999); flex-shrink: 0; margin-top: 2px;
+    transition: border-color .15s, color .15s;
+  }
+  .ltm-close:hover { border-color: var(--ink,#1e1e1e); color: var(--ink,#1e1e1e); }
+
+  .ltm-form { padding: 20px 28px 28px; display: flex; flex-direction: column; gap: 14px; }
+
+  .ltm-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .ltm-field { display: flex; flex-direction: column; gap: 5px; }
+  .ltm-label {
+    font-size: 12px; font-weight: 700; color: var(--charcoal,#3a3a3a);
+  }
+  .ltm-req { color: var(--orange,#ed7d31); }
+
+  .ltm-input, .ltm-select {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 500; color: var(--ink,#1e1e1e);
+    background: var(--cream,#fdf6ef); border: 1.5px solid var(--border,#e8e0d8);
+    border-radius: 8px; padding: 10px 14px;
+    transition: border-color .15s, box-shadow .15s;
+    outline: none; width: 100%; -webkit-appearance: none;
+  }
+  .ltm-input::placeholder { color: var(--muted,#999); font-weight: 400; }
+  .ltm-input:focus, .ltm-select:focus {
+    border-color: var(--orange,#ed7d31);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(237,125,49,.1);
+  }
+  .ltm-input.err, .ltm-select.err {
+    border-color: #dc2626; background: #fef2f2;
+  }
+  .ltm-select {
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 7L11 1' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: calc(100% - 14px) center;
+    padding-right: 36px; cursor: pointer;
+  }
+  .ltm-textarea { resize: vertical; min-height: 84px; line-height: 1.6; }
+
+  .ltm-err {
+    font-size: 11px; color: #dc2626; font-weight: 600; display: none;
+  }
+  .ltm-input.err ~ .ltm-err,
+  .ltm-select.err ~ .ltm-err { display: block; }
+
+  .ltm-privacy {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 11.5px; color: var(--muted,#999); line-height: 1.55;
+    background: var(--cream,#fdf6ef); border: 1px solid var(--border,#e8e0d8);
+    border-radius: 8px; padding: 10px 12px;
+  }
+  .ltm-lock { flex-shrink: 0; }
+
+  .ltm-submit {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px; font-weight: 700; color: #fff;
+    background: var(--orange,#ed7d31); border: none;
+    border-radius: 8px; padding: 14px;
+    cursor: pointer; width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: background .15s, transform .1s;
+  }
+  .ltm-submit:hover { background: var(--orange-dk,#c96018); }
+  .ltm-submit:active { transform: scale(.99); }
+  .ltm-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+  /* Success state */
+  .ltm-success {
+    display: none;
+    padding: 40px 28px;
+    flex-direction: column; align-items: center;
+    text-align: center; gap: 14px;
+  }
+  .ltm-success-icon {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: #edf7f2;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: #1a7a45;
+    animation: ltm-pop .4s cubic-bezier(.34,1.6,.64,1) both;
+  }
+  @keyframes ltm-pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+  .ltm-success-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px; color: var(--ink,#1e1e1e);
+  }
+  .ltm-success-body { font-size: 15px; color: var(--mid,#6b6b6b); line-height: 1.6; max-width: 340px; }
+  .ltm-success-close {
+    font-size: 14px; font-weight: 700; color: var(--orange,#ed7d31);
+    background: none; border: none; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    padding: 8px 16px; border-radius: 4px;
+    transition: background .15s;
+  }
+  .ltm-success-close:hover { background: var(--orange-lt,#fef3ea); }
+
+  /* Mobile */
+  @media (max-width: 520px) {
+    .ltm-modal {
+      border-radius: 14px 14px 0 0;
+      max-width: 100%; max-height: 92vh;
+      align-self: flex-end;
+    }
+    .ltm-overlay { align-items: flex-end; padding: 0; }
+    .ltm-row { grid-template-columns: 1fr; }
+    .ltm-header { padding: 20px 20px 0; }
+    .ltm-form { padding: 18px 20px 24px; }
+    .ltm-success { padding: 32px 20px; }
+  }
+
+</style>
+</head>
+<body>
+<button class="demo-btn" onclick="openLetsTalkModal()">Let's Talk</button>
+<!-- ═══════════════════════════════════════
+     AIGNYTE — LET'S TALK MODAL
+     Include this block + CSS + JS on every page.
+     Trigger with: openLetsTalkModal()
+     ═══════════════════════════════════════ -->
+
+<div class="ltm-overlay" id="ltm-overlay" aria-hidden="true">
+  <div class="ltm-modal" role="dialog" aria-modal="true" aria-labelledby="ltm-title">
+
+    <!-- Orange accent stripe -->
+    <div class="ltm-stripe"></div>
+
+    <!-- Header -->
+    <div class="ltm-header">
+      <div>
+        <div class="ltm-eyebrow"><span class="ltm-dot"></span>Get in touch</div>
+        <h2 class="ltm-title" id="ltm-title">Let's Talk</h2>
+        <p class="ltm-subtitle">Tell us a little about yourself and we'll be in touch within one business day.</p>
+      </div>
+      <button class="ltm-close" onclick="closeLetsTalkModal()" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Form -->
+    <form class="ltm-form" id="ltm-form" novalidate onsubmit="ltmSubmit(event)">
+
+      <!-- Row 1: First / Last name -->
+      <div class="ltm-row">
+        <div class="ltm-field">
+          <label class="ltm-label" for="ltm-fname">First name <span class="ltm-req">*</span></label>
+          <input class="ltm-input" type="text" id="ltm-fname" name="first_name" autocomplete="given-name" placeholder="Jane">
+          <span class="ltm-err">Required</span>
+        </div>
+        <div class="ltm-field">
+          <label class="ltm-label" for="ltm-lname">Last name <span class="ltm-req">*</span></label>
+          <input class="ltm-input" type="text" id="ltm-lname" name="last_name" autocomplete="family-name" placeholder="Smith">
+          <span class="ltm-err">Required</span>
+        </div>
+      </div>
+
+      <!-- Row 2: Company / Role -->
+      <div class="ltm-row">
+        <div class="ltm-field">
+          <label class="ltm-label" for="ltm-company">Company / Organisation <span class="ltm-req">*</span></label>
+          <input class="ltm-input" type="text" id="ltm-company" name="company" autocomplete="organization" placeholder="Acme Financial">
+          <span class="ltm-err">Required</span>
+        </div>
+        <div class="ltm-field">
+          <label class="ltm-label" for="ltm-role">Job title / Role <span class="ltm-req">*</span></label>
+          <select class="ltm-select" id="ltm-role" name="role">
+            <option value="">Select your role…</option>
+            <option>Chief Marketing Officer</option>
+            <option>VP / Director of Marketing</option>
+            <option>VP / Director of Analytics</option>
+            <option>Direct Marketing Manager</option>
+            <option>Digital Marketing Manager</option>
+            <option>Data Science / Analytics</option>
+            <option>Technology / IT Leadership</option>
+            <option>C-Suite / Executive</option>
+            <option>Agency / Consultant</option>
+            <option>Other</option>
+          </select>
+          <span class="ltm-err" id="ltm-role-err">Required</span>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="ltm-field">
+        <label class="ltm-label" for="ltm-email">Work email <span class="ltm-req">*</span></label>
+        <input class="ltm-input" type="email" id="ltm-email" name="email" autocomplete="email" placeholder="jane@company.com">
+        <span class="ltm-err" id="ltm-email-err">Please enter a valid work email address</span>
+      </div>
+
+      <!-- Challenge -->
+      <div class="ltm-field">
+        <label class="ltm-label" for="ltm-challenge">What challenge do you want to solve with AIgnyte? <span class="ltm-req">*</span></label>
+        <textarea class="ltm-input ltm-textarea" id="ltm-challenge" name="challenge" rows="3" placeholder="e.g. We want to improve response rates on our direct mail acquisition campaigns without increasing our creative budget…"></textarea>
+        <span class="ltm-err">Required</span>
+      </div>
+
+      <!-- How did you hear -->
+      <div class="ltm-field">
+        <label class="ltm-label" for="ltm-source">How did you hear about AIgnyte?</label>
+        <select class="ltm-select" id="ltm-source" name="source">
+          <option value="">Select… (optional)</option>
+          <option>Colleague / referral</option>
+          <option>LinkedIn</option>
+          <option>Google / web search</option>
+          <option>Conference or event</option>
+          <option>Industry publication</option>
+          <option>Cold outreach from AIgnyte</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <!-- Privacy note -->
+      <div class="ltm-privacy">
+        <span class="ltm-lock">🔒</span>
+        <span>Work emails only — we don't accept personal email addresses (Gmail, Yahoo, Hotmail, etc.). We'll only use this to respond to your enquiry.</span>
+      </div>
+
+      <button class="ltm-submit" type="submit" id="ltm-btn">
+        <span id="ltm-btn-label">Send Message</span>
+        <span id="ltm-btn-arrow">→</span>
+      </button>
+
+    </form>
+
+    <!-- Success state -->
+    <div class="ltm-success" id="ltm-success">
+      <div class="ltm-success-icon">✓</div>
+      <div class="ltm-success-title">Message sent</div>
+      <p class="ltm-success-body">Thank you — we'll be in touch within one business day.</p>
+      <button class="ltm-success-close" onclick="closeLetsTalkModal()">Close</button>
+    </div>
+
+  </div>
+</div>
+<script>
+
+  /* ═══════════════════════════════════════
+     AIGNYTE LET'S TALK MODAL — JS
+     ═══════════════════════════════════════ */
+  var LTM_BLOCKED = [
+    'gmail.com','yahoo.com','hotmail.com','outlook.com','live.com',
+    'icloud.com','me.com','mac.com','aol.com','protonmail.com',
+    'proton.me','ymail.com','hotmail.co.uk','yahoo.co.uk',
+    'msn.com','comcast.net','att.net','verizon.net','sbcglobal.net'
+  ];
+
+  function openLetsTalkModal() {
+    var overlay = document.getElementById('ltm-overlay');
+    if (!overlay) return;
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){
+      var f = document.getElementById('ltm-fname');
+      if(f) f.focus();
+    }, 120);
+  }
+
+  function closeLetsTalkModal() {
+    var overlay = document.getElementById('ltm-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+    setTimeout(ltmReset, 300);
+  }
+
+  function ltmReset() {
+    var form = document.getElementById('ltm-form');
+    var succ = document.getElementById('ltm-success');
+    var btn  = document.getElementById('ltm-btn');
+    if(form){ form.style.display = ''; form.reset(); }
+    if(succ){ succ.style.display = 'none'; }
+    if(btn) { btn.disabled = false; }
+    document.getElementById('ltm-btn-label').textContent = 'Send Message';
+    document.getElementById('ltm-btn-arrow').textContent = '\u2192';
+    document.querySelectorAll('.ltm-input.err,.ltm-select.err').forEach(function(el){
+      el.classList.remove('err');
+    });
+  }
+
+  // Close on overlay click
+  document.addEventListener('DOMContentLoaded', function(){
+    var overlay = document.getElementById('ltm-overlay');
+    if(overlay){
+      overlay.addEventListener('click', function(e){
+        if(e.target === this) closeLetsTalkModal();
+      });
+    }
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') closeLetsTalkModal();
+  });
+
+  function ltmValid(id, check) {
+    var el = document.getElementById(id);
+    if(!el) return true;
+    var ok = check(el.value.trim());
+    el.classList.toggle('err', !ok);
+    return ok;
+  }
+
+  function ltmIsWorkEmail(email) {
+    var domain = email.split('@')[1];
+    if(!domain) return false;
+    return LTM_BLOCKED.indexOf(domain.toLowerCase()) === -1;
+  }
+
+  function ltmSubmit(e) {
+    e.preventDefault();
+    var ok = true;
+    ok = ltmValid('ltm-fname',    function(v){ return v.length > 0; }) && ok;
+    ok = ltmValid('ltm-lname',    function(v){ return v.length > 0; }) && ok;
+    ok = ltmValid('ltm-company',  function(v){ return v.length > 0; }) && ok;
+    ok = ltmValid('ltm-challenge',function(v){ return v.length > 0; }) && ok;
+
+    // Role
+    var roleEl = document.getElementById('ltm-role');
+    var roleOk = roleEl && roleEl.value !== '';
+    if(roleEl) roleEl.classList.toggle('err', !roleOk);
+    ok = ok && roleOk;
+
+    // Email — format + work domain check
+    var emailEl = document.getElementById('ltm-email');
+    var emailVal = emailEl ? emailEl.value.trim() : '';
+    var emailFmt = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+    var emailWork = emailFmt && ltmIsWorkEmail(emailVal);
+    if(emailEl) emailEl.classList.toggle('err', !emailFmt || !emailWork);
+    var emailErrEl = document.getElementById('ltm-email-err');
+    if(emailErrEl){
+      if(!emailFmt) emailErrEl.textContent = 'Please enter a valid email address';
+      else if(!emailWork) emailErrEl.textContent = 'Please use your work email — not a personal address (Gmail, Yahoo, etc.)';
+    }
+    ok = ok && emailFmt && emailWork;
+
+    if(!ok) return;
+
+    // Submit
+    var btn = document.getElementById('ltm-btn');
+    btn.disabled = true;
+    document.getElementById('ltm-btn-label').textContent = 'Sending\u2026';
+    document.getElementById('ltm-btn-arrow').textContent = '';
+
+    // Replace setTimeout with your actual form endpoint
+    setTimeout(function(){
+      document.getElementById('ltm-form').style.display = 'none';
+      var succ = document.getElementById('ltm-success');
+      succ.style.display = 'flex';
+    }, 900);
+  }
+
+  // Clear error styling on input
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.ltm-input,.ltm-select').forEach(function(el){
+      el.addEventListener('input', function(){ this.classList.remove('err'); });
+      el.addEventListener('change', function(){ this.classList.remove('err'); });
+    });
+  });
+
+</script>
+</body>
+</html>
